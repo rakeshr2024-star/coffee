@@ -22,6 +22,8 @@ from reportlab.platypus import (BaseDocTemplate, CondPageBreak, Flowable, Frame,
                                 PageTemplate, Paragraph, Spacer, Table,
                                 TableStyle)
 
+import illustrations as il
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "Final_Coff.pdf")
 
@@ -695,21 +697,22 @@ def draw_cover(c, doc):
                             (548, 590, 12, -15, CARAMEL), (300, 88, 9, 40, HX("#8B5E3C"))]:
         bean(x, y, s, a, col)
     # "inside" list on the left
-    inside = ["Judging a cup", "Reading the bag & beans", "Species, varieties & origins",
-              "Processing", "Roast & freshness", "Brewing methods", "The Indian context",
-              "Costs: estate vs other sources", "Ahmedabad café cost model",
-              "Ahmedabad coffee places, rated"]
+    inside = [("A-E", "Coffee 101: an illustrated primer"), ("1", "Judging a cup"),
+              ("2", "Reading the bag & beans"), ("3", "Species, varieties & origins"),
+              ("4", "Processing"), ("5", "Roast & freshness"), ("6", "Brewing methods"),
+              ("7", "The Indian context"), ("8", "Costs: estate vs other sources"),
+              ("9", "Ahmedabad café cost model"), ("10", "Ahmedabad coffee places, rated")]
     c.setFont("Body-Bold", 8.5)
     c.setFillColor(SAFFRON)
-    c.drawString(MARGIN, 505, "INSIDE")
-    for i, t in enumerate(inside):
-        y = 488 - i * 15.5
+    c.drawString(MARGIN, 515, "INSIDE")
+    for i, (num, t) in enumerate(inside):
+        y = 498 - i * 15.5
         c.setFillColor(CARAMEL)
         c.setFont("Head", 10)
-        c.drawRightString(MARGIN + 14, y, str(i + 1))
+        c.drawRightString(MARGIN + 22, y, num)
         c.setFillColor(CREMA)
         c.setFont("Body", 10)
-        c.drawString(MARGIN + 22, y, t)
+        c.drawString(MARGIN + 30, y, t)
     # colour stripe (roast spectrum)
     stripe = [HX("#8DB86A"), HX("#D9CC72"), HX("#D39A55"), HX("#A86A38"), HX("#7A4A2A"),
               HX("#4D2F1C"), HX("#24150E")]
@@ -846,6 +849,223 @@ UPGRADE_LO = _BY["C"]["per_drink"] - _BY["A"]["per_drink"]
 UPGRADE_HI = _BY["B"]["per_drink"] - _BY["A"]["per_drink"]
 
 
+# =========================================================================== COFFEE 101 PRIMER
+def two_col(left, right, lw, gap=10, valign="TOP"):
+    return Table([[left, right]], colWidths=[lw, CONTENT_W - lw],
+                 style=[("VALIGN", (0, 0), (-1, -1), valign),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+                        ("LEFTPADDING", (1, 0), (1, 0), gap)])
+
+
+def numbered(items, color="#2B1A12"):
+    st = ParagraphStyle("num", parent=BODY_SM, leftIndent=15, firstLineIndent=-15, spaceAfter=3.2)
+    return [P(f'<font name="Body-Bold" color="{color}">{i}</font>&nbsp;&nbsp;&nbsp;{t}', st)
+            for i, t in enumerate(items, start=1)]
+
+
+def primer_story():
+    s = []
+    PR = HX("#8B5E3C")
+    note = ParagraphStyle("note", parent=CAPTION, spaceAfter=4)
+
+    # ------------------------------------------------------------------ A. the plant
+    s += section("A", "Coffee 101: Meet the Plant",
+                 "A visual primer for complete beginners. Every picture here is an illustration",
+                 PR)
+    s.append(P("Coffee is the <b>seed of a fruit</b>. It grows on an evergreen shrub (genus "
+               "<i>Coffea</i>) whose small, cherry-like fruit holds two seeds. Those seeds are the "
+               "'beans'. Legend has it that the saint Baba Budan smuggled seven seeds from Yemen to "
+               "the Chikmagalur hills in the 1600s, and those hills still carry his name "
+               "(Bababudangiri). In India the shrubs grow on the slopes of the Western Ghats under "
+               "taller shade trees, much like a forest garden.", BODY))
+    s.append(fig(il.CanvasFigure(CONTENT_W, 168, il.estate_scene),
+                 "Illustration A1. A shade-grown estate. The coffee bushes sit in the understorey, "
+                 "with silver oaks (carrying pepper vines) and native trees above them."))
+    s.append(fig(il.CanvasFigure(CONTENT_W, 178, il.branch_scene),
+                 "Illustration A2. Coffee cherries grow in clusters where the leaves meet the "
+                 "branch. They ripen unevenly, so good farms hand-pick each bush several times."))
+    s.append(fig(il.CanvasFigure(CONTENT_W, 98, il.ripeness_plate),
+                 "Illustration A3. Ripeness decides sweetness. Only ripe cherries make sweet coffee; "
+                 "unripe ones taste sour and grassy. (Some varieties ripen yellow, not red.)"))
+    s.append(fig(il.CanvasFigure(CONTENT_W, 88, il.season_gantt),
+                 "Illustration A4. The coffee year on an Indian estate (approximate; it varies with "
+                 "altitude and rains). A cherry takes roughly 7-9 months (arabica) to 9-11 months "
+                 "(robusta) to ripen, and about 5-6 kg of cherries make 1 kg of green coffee."))
+
+    # ------------------------------------------------------------------ B. the cherry
+    s.append(CondPageBreak(420))
+    s += section("B", "Inside the Cherry", "What 'skin & pulp removed' actually means", PR)
+    s.append(P("A coffee cherry is built in layers, like a tiny mango with two stones. "
+               "<b>Processing</b> is simply the order and the way these layers come off. That choice "
+               "changes the flavour more than almost anything except the variety.", BODY))
+    layer_txt = [P("The six layers (outside to inside)", H3)] + numbered([
+        "<b>Skin</b> (exocarp): thin and shiny; green, then red when ripe.",
+        "<b>Pulp</b> (mesocarp): the sweet, juicy fruit flesh, only a couple of millimetres "
+        "thick. Dried skin and pulp are brewed as a tea called <i>cascara</i>.",
+        "<b>Mucilage</b>: a slippery, sugary, honey-like coating stuck to the parchment. "
+        "'Honey process' coffee is dried with this layer still on.",
+        "<b>Parchment</b> (endocarp): a papery, cream-coloured husk around each bean. It is "
+        "removed by a hulling machine after drying.",
+        "<b>Silver skin</b>: a very thin film hugging the bean. It flakes off as 'chaff' when "
+        "the coffee is roasted.",
+        "<b>Bean</b> (the seed): usually two per cherry with their flat sides facing. A cherry with "
+        "a single round bean gives a <b>peaberry</b> (about 5-10% of the crop).",
+    ])
+    s.append(two_col(il.CanvasFigure(CONTENT_W * 0.50, 228, il.cherry_cross_section), layer_txt,
+                     CONTENT_W * 0.50))
+    s.append(P("Illustration B1. A ripe cherry cut lengthwise.", note))
+    s.append(callout("So what does 'skin & pulp removed' mean?", [
+        "At the mill, a <b>pulping machine</b> squeezes each cherry so that the two slippery beans "
+        "pop out, leaving layers 1 and 2 behind. That is 'pulping'. What happens to layer 3 (the "
+        "sticky mucilage) and how long the beans dry decides whether the coffee is called "
+        "<b>washed</b>, <b>honey</b> or <b>natural</b>."], color=PR, bg=HX("#F7EFE6")))
+    s.append(Spacer(1, 4))
+    s.append(fig(il.CanvasFigure(CONTENT_W, 150, il.process_layers),
+                 "Illustration B2. What is still on the bean while it dries. The more fruit left "
+                 "on, the sweeter, fruitier and heavier the cup, but the higher the risk of "
+                 "ferment flavours."))
+    s.append(fig(il.CanvasFigure(CONTENT_W, 112, il.pipelines),
+                 "Illustration B3. The three main routes from cherry to green coffee. Drying "
+                 "brings the beans down to 10-12% moisture so they can be stored and shipped."))
+
+    # ------------------------------------------------------------------ C. the beans
+    s.append(CondPageBreak(380))
+    s += section("C", "Beans: Before and After Roasting",
+                 "What green coffee looks like, and how roasting transforms it", PR)
+    s.append(P("Green coffee is hard, dense and smells like hay or peas. It keeps for months and "
+               "tastes of nothing when brewed. <b>Roasting</b> is what creates coffee flavour: in "
+               "about 9-14 minutes the bean dries, turns yellow and then brown, and swells. It "
+               "<b>cracks</b> audibly (like popcorn) and builds more than 800 aroma compounds.",
+               BODY))
+    s.append(fig(il.CanvasFigure(CONTENT_W, 98, il.beans_before),
+                 "Illustration C1. Before roasting, flat (crease) side up. How to tell them apart: "
+                 "washed vs natural colour, arabica's S-shaped crease vs robusta's straight one, and "
+                 "the round single peaberry."))
+    s.append(fig(il.CanvasFigure(CONTENT_W, 128, il.beans_roast),
+                 "Illustration C2. The same bean through a roast. Temperatures are the bean's "
+                 "temperature, and weight loss is approximate."))
+    roast_rows = [
+        ["Drying (to ~150-160°C)", "Water boils off; green → yellow; smells like bread or hay",
+         "Nothing tasty yet"],
+        ["Browning (Maillard)", "Sugars and proteins react; brown colours and aromas form",
+         "Caramel, nuts, cocoa begin"],
+        ["First crack (~196-205°C)", "Steam and CO₂ burst the cells with a 'pop'",
+         "Light roasts end here: bright, fruity"],
+        ["Development", "Acidity softens, sweetness and body build", "Medium roasts: balanced"],
+        ["Second crack (~224-230°C)", "Bean structure breaks; oils rise to the surface",
+         "Dark roasts: chocolate, smoke, bitter"],
+    ]
+    s.append(data_table(["Roast stage", "What is happening inside the bean", "Taste result"],
+                        roast_rows, [112, 230, CONTENT_W - 342], head_color=PR, font_size=7.4))
+    s.append(Spacer(1, 5))
+    s.append(callout("Reading roasted beans by eye", [
+        "<b>Light:</b> cinnamon-brown, dry, with pale chaff visible in the crease.  "
+        "<b>Medium:</b> milk-chocolate brown, still dry.  <b>Medium-dark:</b> darker, with a few "
+        "oil spots.  <b>Dark:</b> nearly black and shiny with oil.  An <b>oily light roast</b> "
+        "usually means the beans are old, and <b>mixed colours</b> mean uneven roasting or mixed "
+        "lots."], color=PR, bg=HX("#F7EFE6")))
+    s.append(Spacer(1, 6))
+    s.append(P("From cherry to cup: how much coffee is in a cherry?", H2))
+    s.append(fig(il.CanvasFigure(CONTENT_W, 104, il.yield_funnel),
+                 "Illustration C3. Approximate yields. Each cup of coffee is made from roughly 50-70 "
+                 "hand-picked cherries, which is one reason carefully picked coffee costs more."))
+
+    # ------------------------------------------------------------------ D. terroir
+    s.append(CondPageBreak(420))
+    s += section("D", "Terroir: Why the Place Shows Up in the Cup",
+                 "Same plant, different hillside, different coffee", PR)
+    s.append(P("<b>Terroir</b> (a French wine word, 'ter-WAHR') means everything about the place a "
+               "crop grows: height, temperature, rain, soil, sunlight and shade. You already know it "
+               "from India. <b>Darjeeling and Assam teas</b> come from the same plant species but "
+               "taste completely different. A <b>Ratnagiri Alphonso</b> mango doesn't taste like one "
+               "grown elsewhere. Coffee works the same way, because the place changes the "
+               "<b>chemistry inside the seed</b>: how much sugar, acid and aroma material it stores "
+               "while it ripens.", BODY))
+    chain = [P("Why altitude matters most", H3)] + bullets([
+        "Air cools by roughly 6°C for every 1,000 m you climb, and nights get cooler still.",
+        "Cooler conditions <b>slow the ripening</b>. The cherry hangs on the bush for longer.",
+        "The seed has more time to pack in <b>sugars, acids and aroma precursors</b>, and it grows "
+        "<b>denser and harder</b>. Central American traders even grade 'Strictly Hard Bean'.",
+        "Result: brighter acidity, more sweetness and more complex notes (fruit, flowers).",
+        "Lower and warmer means faster ripening and softer beans, which give a flatter, heavier, "
+        "more bitter cup. That suits robusta, which prefers the heat.",
+    ], ParagraphStyle("cb2", parent=BULLET, fontSize=8.2, leading=10.6, spaceAfter=2))
+    s.append(two_col(il.CanvasFigure(CONTENT_W * 0.60, 170, il.mountain), chain, CONTENT_W * 0.60))
+    s.append(P("Illustration D1. Altitude bands and the coffee grown in them. India's arabica "
+               "sits at 1,000-1,600 m.", note))
+    ingredients = [
+        ["Altitude & temperature", "Slower ripening, denser beans, more acidity and aroma"],
+        ["Latitude", "Further from the equator it is cooler, so the same quality grows lower down"],
+        ["Rain & monsoon", "Timing triggers flowering (India's 'blossom showers') and even ripening"],
+        ["Soil", "Minerals and drainage feed the tree; e.g. volcanic in Kenya, red laterite in India"],
+        ["Shade", "Cooler leaves, slower ripening, healthier soil and birds; typical of India"],
+        ["Variety × place", "Genetics sets the potential; the place decides how much shows"],
+        ["The farmer", "Picking only ripe cherries and careful processing make or break it"],
+    ]
+    it = data_table(["Terroir factor", "What it does to the coffee"], ingredients,
+                    [78, CONTENT_W * 0.50 - 88], head_color=PR, font_size=7.2)
+    s.append(two_col(il.CanvasFigure(CONTENT_W * 0.50, 170, il.lat_alt_chart), it, CONTENT_W * 0.50))
+    s.append(P("Illustration D2. Why Indian arabica can be excellent at 'only' 1,000-1,500 m: at "
+               "10-18°N, nights are cool enough at lower altitudes than at the equator, where "
+               "Kenya needs 1,500 m or more.", note))
+    s.append(callout("Myth check: does the pepper and cardamom flavour the coffee?", [
+        "No. Spices grown next to the coffee don't seep into the beans. The 'spice' and "
+        "'chocolate' notes in Indian coffee come from the bean's own chemistry, its shade-slowed "
+        "ripening, and the roast. Intercropping matters because of the shade and soil it brings, "
+        "not because of the flavours."], color=PR, bg=HX("#F7EFE6")))
+
+    # ------------------------------------------------------------------ E. tasting words
+    s.append(CondPageBreak(420))
+    s += section("E", "Speaking Coffee: What the Words Mean",
+                 "Acidity, body, notes, and why they matter when you choose", PR)
+    pinch = [P("Try this tonight", H3),
+             P("Take a sip of coffee while pinching your nose. You'll taste only sweet, sour and "
+               "bitter. Let go mid-sip and the 'chocolate' or 'fruit' rushes in. Tasting notes are "
+               "mostly <b>smells</b>, reaching your nose from the back of your mouth.", BODY_SM)]
+    s.append(two_col(il.CanvasFigure(CONTENT_W * 0.62, 78, il.taste_smell), pinch, CONTENT_W * 0.62,
+                     valign="MIDDLE"))
+    s.append(Spacer(1, 6))
+    s.append(il.CanvasFigure(CONTENT_W, 66, il.acidity_scale))
+    s.append(Spacer(1, 4))
+    s.append(fig(il.CanvasFigure(CONTENT_W, 100, il.body_glasses),
+                 "Illustration E1. Acidity (top) and body (bottom) are separate dials: an Indian "
+                 "coffee is usually soft in acidity but full in body; a Kenyan is the opposite."))
+    why = [P("Why tasting notes matter", H3)] + bullets([
+        "<b>They're not added flavours.</b> 'Peach' means the coffee contains some of the same "
+        "aroma compounds as a peach. Flavoured coffee (hazelnut syrup) is a different thing.",
+        "<b>They describe the coffee's personality</b>, so you can choose what you'll enjoy. "
+        "Floral and fruity means light and bright (try it black). Chocolate and nutty means "
+        "comforting and great with milk.",
+        "<b>They are a fingerprint</b> of variety, place, process and roast. 'Jasmine and bergamot' "
+        "strongly suggests a washed Ethiopian or a Gesha, and 'cocoa, spice, jaggery' points to India.",
+        "<b>Specific notes signal quality.</b> Better coffees have more and clearer aromas. A bag "
+        "that only says 'rich and bold' usually has little to describe.",
+        "<b>Tea-like</b> = light body and delicate, like black tea. <b>Floral</b> = smells like "
+        "flowers (jasmine, rose), usually from high-grown washed coffees.",
+    ], ParagraphStyle("wb", parent=BULLET, fontSize=8.1, leading=10.4, spaceAfter=2))
+    s.append(two_col(il.CanvasFigure(CONTENT_W * 0.44, 196, il.flavour_wheel), why,
+                     CONTENT_W * 0.44))
+    s.append(P("Illustration E2. A simplified coffee flavour wheel (after the SCA/WCR Coffee "
+               "Taster's Flavor Wheel). Start in the middle (a family), then move outwards to be "
+               "more specific.", note))
+    words = [
+        ["Acidity / bright", "Pleasant, lively sharpness", "biting a green apple or an orange"],
+        ["Body / mouthfeel", "Weight and texture", "skim milk vs whole milk vs cream"],
+        ["Full-bodied", "Heavy, coating, lingers", "hot chocolate; Indian and Sumatran coffees"],
+        ["Sweetness", "Natural sweetness, no sugar added", "ripe fruit, caramel, jaggery"],
+        ["Bitterness", "Fine in small doses; harsh if burnt", "dark chocolate vs burnt toast"],
+        ["Clean", "No off-flavours from start to finish", "clear spring water vs muddy water"],
+        ["Juicy", "Mouth-watering acidity plus sweetness", "fresh fruit juice"],
+        ["Winey", "Ripe, fermented-fruit depth", "red grapes, wine; natural processes"],
+        ["Finish / aftertaste", "What stays after you swallow", "a long sweet echo vs a dry, ashy one"],
+        ["Balanced", "Nothing sticks out", "a good curry where no spice dominates"],
+    ]
+    s.append(data_table(["Word", "What it means", "Everyday comparison"], words,
+                        [92, 180, CONTENT_W - 272], head_color=PR, font_size=7.3))
+    return s
+
+
 # =========================================================================== CONTENT
 def build_story():
     s = []
@@ -858,32 +1078,32 @@ def build_story():
                "signals actually predict a good cup, and which are just marketing. This guide follows "
                "the coffee from seed to cup. At each stage it explains what to look for, gives the "
                "numbers that matter, and rates the options. It then applies all of that to India's "
-               "estates and to the cost of running a café in Ahmedabad.", LEAD))
-    toc = [
-        ("1", "Judging a cup", "SCA score, the 10 attributes, where quality comes from"),
-        ("2", "Reading the bag & the beans", "label checklist, green & roasted bean specs"),
-        ("3", "Species, varieties & origins", "what makes one great bean differ from another"),
-        ("4", "Processing", "washed, natural, honey, anaerobic, monsooned"),
-        ("5", "Roast & freshness", "roast levels, temperatures, days off roast"),
-        ("6", "Brewing methods", "espresso, filter kaapi, pour-over and more: specs & ratings"),
-        ("7", "The Indian context", "regions, GI tags, grades, varieties, estates"),
-        ("8", "Costs: estate vs other sources", "market prices, price ladder, sourcing routes"),
-        ("9", "Ahmedabad café raw-material model", "6 sourcing scenarios, cost per cup"),
-        ("10", "Ahmedabad coffee places, rated", "sources, methods, scores"),
+               "estates and to the cost of running a café in Ahmedabad. <b>Brand new to coffee? "
+               "Start with the illustrated Coffee 101 primer (A-E).</b>", LEAD))
+    toc_cols = [
+        [("A", "Meet the plant"), ("B", "Inside the cherry"), ("C", "Beans & roasting"),
+         ("D", "Terroir"), ("E", "Speaking coffee")],
+        [("1", "Judging a cup"), ("2", "Reading the bag & beans"), ("3", "Species & origins"),
+         ("4", "Processing"), ("5", "Roast & freshness")],
+        [("6", "Brewing methods"), ("7", "The Indian context"), ("8", "Costs & sourcing"),
+         ("9", "Ahmedabad café cost model"), ("10", "Ahmedabad places, rated")],
     ]
-    rows = []
-    for n, t, d_ in toc:
-        rows.append([P(f'<font name="Head" size="12" color="#C68B59">{n}</font>', CELL_C),
-                     P(f'<b>{t}</b><br/><font color="#7A6F66">{d_}</font>', CELL)])
-    half = (len(rows) + 1) // 2
-    left = Table(rows[:half], colWidths=[28, CONTENT_W / 2 - 36])
-    right = Table(rows[half:], colWidths=[28, CONTENT_W / 2 - 36])
-    for t in (left, right):
+    heads = ["COFFEE 101 (illustrated)", "JUDGING & MAKING COFFEE", "INDIA, COSTS & AHMEDABAD"]
+    col_w = CONTENT_W / 3
+    cols = []
+    for head, items in zip(heads, toc_cols):
+        rows = [[P(f'<font name="Body-Bold" size="7.2" color="#C68B59">{head}</font>', CELL), ""]]
+        for n, t in items:
+            rows.append([P(f'<font name="Head" size="11" color="#C68B59">{n}</font>', CELL_C),
+                         P(f'<b>{t}</b>', CELL)])
+        t = Table(rows, colWidths=[24, col_w - 32])
         t.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                               ("LINEBELOW", (0, 0), (-1, -1), 0.4, RULE),
-                               ("TOPPADDING", (0, 0), (-1, -1), 3),
-                               ("BOTTOMPADDING", (0, 0), (-1, -1), 3)]))
-    s.append(Table([[left, right]], colWidths=[CONTENT_W / 2, CONTENT_W / 2],
+                               ("SPAN", (0, 0), (1, 0)),
+                               ("LINEBELOW", (0, 1), (-1, -1), 0.4, RULE),
+                               ("TOPPADDING", (0, 0), (-1, -1), 2.2),
+                               ("BOTTOMPADDING", (0, 0), (-1, -1), 2.2)]))
+        cols.append(t)
+    s.append(Table([cols], colWidths=[col_w] * 3,
                    style=[("VALIGN", (0, 0), (-1, -1), "TOP"),
                           ("LEFTPADDING", (0, 0), (-1, -1), 0)]))
     s.append(Spacer(1, 8))
@@ -949,6 +1169,10 @@ def build_story():
         ("100%", "basic customs duty on imported coffee", BERRY),
         ("≥ 51%", "coffee in a coffee-chicory mix (FSSAI)", GOLD),
     ]))
+
+    # ------------------------------------------------------------------ Coffee 101 primer
+    s.append(PageBreak())
+    s += primer_story()
 
     # ------------------------------------------------------------------ section 1
     s.append(PageBreak())
@@ -1193,9 +1417,11 @@ def build_story():
     s += section(4, "Processing", "How the fruit is removed: the biggest flavour switch after variety",
                  SAFFRON)
     proc_rows = [
-        ["Washed (wet)", "Skin & pulp removed, fermented 12-48 h, washed, dried",
+        ["Washed (wet)", "Pulped (skin & fruit flesh squeezed off), sticky layer fermented "
+         "12-48 h and washed away, dried in parchment (see B2)",
          "Clean, bright, terroir-forward", "High consistency; needs water", "Baseline", 9, 9],
-        ["Honey / pulped natural", "Pulp off, sticky mucilage left on to dry (yellow/red/black)",
+        ["Honey / pulped natural", "Pulped, but the sticky mucilage is left on to dry "
+         "(yellow/red/black = more left on)",
          "Sweet, rounded, softer acidity", "Medium", "+10-25%", 8.5, 8.5],
         ["Natural (dry)", "Whole cherry dried 2-4 weeks on beds or patios",
          "Fruity, winey, heavy body", "Over-ferment risk", "+0-20%", 8, 8],

@@ -512,7 +512,6 @@ def estate_scene(c, w, h):
                                             (-34, 0.80, range(5, int(w), 50)),
                                             (-58, 1.0, range(30, int(w), 62))]):
         for x in xs:
-            gy0 = ground_y(x)
             c.saveState()
             c.translate(0, dy)
             bush(x, scale)

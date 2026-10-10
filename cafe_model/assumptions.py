@@ -13,11 +13,11 @@ LAKH = 100_000
 LOCATIONS = ["Prahladnagar", "Sindhu Bhavan Road", "GIFT City", "Sanand"]
 PROPERTY = ["Rent", "Own"]
 ROASTING = ["Buy roasted", "Toll roasting", "In-house roastery"]
-MIXES = ["Value", "Specialty", "Premium", "Custom"]
+MIXES = ["Value", "Specialty", "Premium", "House"]
 SCENARIOS = ["Best", "Base", "Worst"]
 
 DEFAULT_SELECTION = dict(location="Prahladnagar", property="Rent", roasting="Toll roasting",
-                         mix="Specialty", scenario="Base")
+                         mix="House", scenario="Base")
 
 # --------------------------------------------------------------------------- locations
 # (key, label, units, [Prahladnagar, Sindhu Bhavan Road, GIFT City, Sanand], note)
@@ -70,12 +70,13 @@ MIX_SHARES = {                                      # share of each green type
     "Value":     [0.50, 0.50, 0.00, 0.00, 0.00],
     "Specialty": [0.00, 0.00, 0.20, 0.75, 0.05],
     "Premium":   [0.00, 0.00, 0.10, 0.50, 0.40],
-    "Custom":    [0.00, 0.00, 0.15, 0.70, 0.15],
+    "House":     [0.00, 0.00, 0.15, 0.70, 0.15],
 }
 SOURCING = dict(shrink=0.16, toll_fee=180, freight=25, inhouse_var=35, cafe_pack=10,
                 retail_pack=48, whs_pack=45)
-# demand & price effects of the bean mix (vs the Specialty mix), and own-label retail price
-MIX_EFFECTS = [  # key, label, units, [Value, Specialty, Premium, Custom], note
+# demand & price effects of the bean mix (vs the Specialty mix), own-label retail and wholesale prices.
+# "House" is the recommended blend: 15% washed robusta, 70% estate arabica, 15% micro-lot.
+MIX_EFFECTS = [  # key, label, units, [Value, Specialty, Premium, House], note
     ("atv_prem", "Average-bill premium vs Specialty", "%", [-0.10, 0.0, 0.05, 0.02],
      "Menu pricing the bean quality supports"),
     ("foot_eff", "Footfall effect vs Specialty", "%", [0.05, 0.0, -0.05, 0.0],
@@ -179,17 +180,17 @@ CONFIGS = [  # name, location, property, roasting, mix
     ("PN-O-Toll", "Prahladnagar", "Own", "Toll roasting", "Specialty"),
     ("PN-R-Toll-Val", "Prahladnagar", "Rent", "Toll roasting", "Value"),
     ("PN-R-Toll-Prm", "Prahladnagar", "Rent", "Toll roasting", "Premium"),
-    ("PN-R-Toll-Cus", "Prahladnagar", "Rent", "Toll roasting", "Custom"),
+    ("PN-R-Toll-Hse", "Prahladnagar", "Rent", "Toll roasting", "House"),
     ("SBR-R-Buy", "Sindhu Bhavan Road", "Rent", "Buy roasted", "Specialty"),
     ("SBR-R-Toll", "Sindhu Bhavan Road", "Rent", "Toll roasting", "Specialty"),
     ("SBR-R-InH", "Sindhu Bhavan Road", "Rent", "In-house roastery", "Specialty"),
     ("SBR-O-Toll", "Sindhu Bhavan Road", "Own", "Toll roasting", "Specialty"),
-    ("SBR-R-Toll-Cus", "Sindhu Bhavan Road", "Rent", "Toll roasting", "Custom"),
+    ("SBR-R-Toll-Hse", "Sindhu Bhavan Road", "Rent", "Toll roasting", "House"),
     ("GIFT-R-Buy", "GIFT City", "Rent", "Buy roasted", "Specialty"),
     ("GIFT-R-Toll", "GIFT City", "Rent", "Toll roasting", "Specialty"),
     ("GIFT-R-InH", "GIFT City", "Rent", "In-house roastery", "Specialty"),
     ("GIFT-O-Toll", "GIFT City", "Own", "Toll roasting", "Specialty"),
-    ("GIFT-R-Toll-Cus", "GIFT City", "Rent", "Toll roasting", "Custom"),
+    ("GIFT-R-Toll-Hse", "GIFT City", "Rent", "Toll roasting", "House"),
     ("SAN-R-Toll", "Sanand", "Rent", "Toll roasting", "Specialty"),
     ("SAN-R-InH", "Sanand", "Rent", "In-house roastery", "Specialty"),
     ("SAN-O-Toll", "Sanand", "Own", "Toll roasting", "Specialty"),

@@ -183,7 +183,7 @@ def inputs(B):
     B.sc("sel_roast", "Coffee roasting route", "list", sel["roasting"], dv=dv("RoastList"),
          note="Buy roasted beans / toll-roast your own green coffee / own 3 kg roaster")
     B.sc("sel_mix", "Bean mix", "list", sel["mix"], dv=dv("MixList"),
-         note="Value / Specialty / Premium / Custom blends: see Sourcing")
+         note="Value / Specialty / Premium / House blends: see Sourcing")
     B.sc("sel_scn", "Scenario", "list", sel["scenario"], dv=dv("ScnList"),
          note="Best / Base / Worst drivers below")
     B.skip()
@@ -1432,7 +1432,7 @@ def configs(B):
     B.skip()
     B.note("Naming: PN = Prahladnagar, SBR = Sindhu Bhavan Road, GIFT = GIFT City, SAN = Sanand; "
            "R = rent, O = own; Buy / Toll / InH = roasting route; Val / Prm = Value / Premium mix "
-           "(default Specialty).")
+           "(default Specialty); Hse = House blend.")
 
 
 # =============================================================================== Dashboard
